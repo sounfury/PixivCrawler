@@ -2,6 +2,7 @@
 # -*- codeing =utf-8 -*-
 import requests
 import re
+import browser_cookie3
 import download
 import safe
 def search__():
@@ -14,8 +15,8 @@ def search__():
 
     safe.safe_()
 
-    cookies = "your-cookie"
-    cookies = {i.split("=")[0]: i.split("=")[1] for i in cookies.split(";")}
+    edge_cookie = browser_cookie3.edge(domain_name='pixiv.net')
+    cookies=edge_cookie
     x = input("输入要搜索的对象")
     y = input("请输入收藏数")
     e=input("请输入页数")
@@ -42,7 +43,7 @@ def search__():
             bookmark = re.findall(re1, res2.text)
 
             if int(bookmark[0])> int(y):
-                download.download_(res,headers,cookies,proxies,x,title)
+                download.download_(res,x,title)
 
             i += 1
         z+=1
