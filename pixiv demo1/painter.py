@@ -5,7 +5,7 @@ import browser_cookie3
 import safe
 import re
 import download
-import multiprocessing as mp
+import concurrent.futures
 def painter__():
     name=input("请输入画师id")
     url="https://www.pixiv.net/ajax/user/{}/profile/all?lang=zh".format(name)
@@ -23,24 +23,21 @@ def painter__():
         'http': 'http://' + proxy,
         'https': 'http://' + proxy
     }
-    res0=requests.get(url,headers=headers,cookies=cookies,proxies=proxies)#打开画师主页,获取id用的
-    json=res0.json()
-    s=re.findall(re1,str(json['body']['illusts']))#获取画师全部作品ID
+    IDres0=requests.get(url,headers=headers,cookies=cookies,proxies=proxies)#打开画师主页,获取id用的
+    json=IDres0.json()
+    total_ID=re.findall(re1,str(json['body']['illusts']))#获取画师全部作品ID
     i=0
     download_args = []
-    while i<len(s):
-        ID = s[i]#获取画师全部作品ID
-        URL = "https://www.pixiv.net/ajax/illust/" + ID
-        URL2="https://www.pixiv.net/ajax/illust/" + ID + "/pages?lang=zh"
-        print(URL)
-        res1 = requests.get(URL, headers=headers, cookies=cookies, proxies=proxies)
-        title = res1.json()["body"]["illustTitle"]
-        res2= requests.get(URL2, headers=headers, cookies=cookies, proxies=proxies)
-        download_args.append((res2,name,title))
-        i+=1
-    pool = mp.Pool(processes=8)
-    pool.map(download.download_, download_args)
-    pool.close()
-    pool.join()
+    with concurrent.futures.ThreadPoolExecutor(max_workers=16) as executor:
+        while i<len(total_ID):
+            ID = total_ID[i]#获取画师全部作品ID
+            URL = "https://www.pixiv.net/ajax/illust/" + ID
+            URL2="https://www.pixiv.net/ajax/illust/" + ID + "/pages?lang=zh"
+            titleRes1 = requests.get(URL, headers=headers, cookies=cookies, proxies=proxies)
+            title = titleRes1.json()["body"]["illustTitle"]
+            res2= requests.get(URL2, headers=headers, cookies=cookies, proxies=proxies)
+            print("已添加" + title + "到下载队列")
+            i+=1
+            executor.submit(download.download_, (res2, name, title))
 
 

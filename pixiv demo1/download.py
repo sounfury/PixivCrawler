@@ -29,7 +29,7 @@ def download_(args):
         gs = k.split('.')[-1]
         if any(c in title for c in '\/:*?"<>|'):
             title = re.sub(r'[\\/:*?"<>|]', '-', title)
-        if len(json0["body"]) > 1:
+        if len(json0["body"]) > 1 :
             if not os.path.exists("E:/图片/" + x + '/' + title):
                 os.mkdir("E:/图片/" + x + '/' + title)
             imgpath = "E:/图片/" + x + '/' + title + '/' + str(j) + '.' + gs

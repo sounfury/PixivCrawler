@@ -5,6 +5,7 @@ import re
 import browser_cookie3
 import download
 import safe
+import concurrent.futures
 def search__():
     re1 = re.compile('"width":.*?,"height":.*?,"pageCount":.*?,"bookmarkCount":(\d*),"likeCount":.*?')
 
@@ -16,37 +17,39 @@ def search__():
     safe.safe_()
 
     edge_cookie = browser_cookie3.edge(domain_name='pixiv.net')
-    cookies=edge_cookie
-    x = input("输入要搜索的对象")
-    y = input("请输入收藏数")
-    e=input("请输入页数")
-    z = 1
-    url = "https://www.pixiv.net/ajax/search/artworks/{name}?word={name}&order=date_d&mode=all&p={num}&s_mode=s_tag&type=all"
+    cookies = edge_cookie
+    search_query = input("输入要搜索的对象：")
+    bookmark_threshold = input("请输入收藏数阈值：")
+    search_pages = input("请输入要搜索的页数：")
+    current_page_number = 1
+    url_template = "https://www.pixiv.net/ajax/search/artworks/{name}?word={name}&order=date_d&mode=all&p={num}&s_mode=s_tag&type=all"
 
     proxy = '127.0.0.1:7890/'
     proxies = {
         'http': 'http://' + proxy,
         'https': 'http://' + proxy
     }
-    while z <= int(e):
-        newurl = url.format(name=x, num=z)
-        response = requests.get(url=newurl, headers=headers, cookies=cookies, proxies=proxies)#打开搜索api
-        json = response.json()
-        i = 0
-        while i < len(json["body"]["illustManga"]["data"]):#获取搜索页面各组图群的全部ID
-            ID = json["body"]["illustManga"]["data"][i]["id"]
-            title=json["body"]["illustManga"]["data"][i]["title"]
-            URL = "https://www.pixiv.net/ajax/illust/" + ID + "/pages?lang=zh"
-            res = requests.get(URL, headers=headers, cookies=cookies, proxies=proxies)
-            url2 = "https://www.pixiv.net/artworks/" + ID
-            res2 = requests.get(url2, headers=headers, cookies=cookies, proxies=proxies)#打开详情页检索收藏数
-            bookmark = re.findall(re1, res2.text)
 
-            if int(bookmark[0])> int(y):
-                download.download_(res,x,title)
+    with concurrent.futures.ThreadPoolExecutor(16) as executor:
+            while current_page_number <= int(search_pages):
+                search_url = url_template.format(name=search_query, num=current_page_number)
+                response = requests.get(url=search_url, headers=headers, cookies=cookies, proxies=proxies)  # 打开搜索api
+                json = response.json()
+                i = 0
+                while i < len(json["body"]["illustManga"]["data"]):  # 获取搜索页面各组图群的全部ID
+                    artwork_id = json["body"]["illustManga"]["data"][i]["id"]
+                    artwork_title = json["body"]["illustManga"]["data"][i]["title"]
+                    pages_url = "https://www.pixiv.net/ajax/illust/" + artwork_id + "/pages?lang=zh"
+                    pages_response = requests.get(pages_url, headers=headers, cookies=cookies, proxies=proxies)
+                    artwork_url = "https://www.pixiv.net/artworks/" + artwork_id
+                    artwork_response = requests.get(artwork_url, headers=headers, cookies=cookies, proxies=proxies)  # 打开详情页检索收藏数
+                    bookmark_count = re.findall(re1, artwork_response.text)
 
-            i += 1
-        z+=1
+                    if int(bookmark_count[0]) > int(bookmark_threshold):
+                        print("已添加" + artwork_title + "到下载队列")
+                        executor.submit(download.download_, (pages_response, search_query, artwork_title))
+
+                    i += 1
+                current_page_number += 1
 
     print(response.status_code)
-
