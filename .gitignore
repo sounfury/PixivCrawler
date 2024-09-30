@@ -1,0 +1,50 @@
+# 默认忽略的文件
+/shelf/
+/workspace.xml
+# 基于编辑器的 HTTP 客户端请求
+/httpRequests/
+# Datasource local storage ignored files
+/dataSources/
+/dataSources.local.xml
+# Python Bytecode
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+dist/
+build/
+*.egg-info/
+
+# Scrapy specific
+scrapy.cfg
+*.log
+*.pot
+*.pyc
+*.egg
+
+# Virtual environment
+# 确保忽略虚拟环境文件夹
+# 如果你使用的是 venv
+venv/
+# 或者如果使用的是其他名称的虚拟环境文件夹
+.env/
+# 如果使用的是其他路径
+/path/to/your/virtual/environment/
+
+# IDE specific
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# MacOS specific
+.DS_Store
+
+# Windows specific
+Thumbs.db
