@@ -1,3 +1,5 @@
+
+
 # PixivCrawler
 
 <div align="center">PixivCrawler</div>
@@ -33,12 +35,12 @@
    ```bash
    git clone https://github.com/yourusername/PixivCrawler.git
    cd PixivCrawler
-```
-
+   ```
+   
 2. **安装依赖**:
-   ```bash
-   pip install -r requirements.txt
-```
+    ```bash
+      pip install -r requirements.txt
+    ```
 
 3. **运行爬虫**:
    ```bash
