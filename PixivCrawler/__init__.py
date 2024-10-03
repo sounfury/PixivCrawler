@@ -12,6 +12,7 @@ def main():
         print("1.搜索画师")
         print("2.排行榜")
         print("3.搜索tag")
+        print("4.搜索作品")
         a = input("请输入你的选择（数字1-3）：")
         if a == "1":
             factory.create_spider('painter')
@@ -19,6 +20,8 @@ def main():
             factory.create_spider('rank')
         elif a == "3":
             factory.create_spider('search')
+        elif a == "4":
+            factory.create_spider('work')
 
         factory.process_spider()
 

@@ -5,11 +5,11 @@ from PixivCrawler.utils.file_path_util import sanitize_filename, parse_time
 
 
 # 注意，只处理 url = f"https://www.pixiv.net/ajax/illust/{illust_id}/pages?lang=zh" 的请求
-def get_img_urls(ImgJson):
+def get_img_urls(ImgJson, max_pages=4,is_max=False):
     # 只下载横向图片，转换成数字再比较
 
     page_count = int(ImgJson["body"]["pageCount"])
-    if page_count >4:
+    if page_count > max_pages and not is_max:
         return []
     item_url = [ImgJson["body"]["urls"]["original"]]
     # 格式"https://i.pximg.net/img-original/img/2018/12/06/00/16/31/71982822_p0.png"

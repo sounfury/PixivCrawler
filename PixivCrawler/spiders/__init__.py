@@ -30,15 +30,20 @@ class PixivSpider(scrapy.Spider, ABC):
         illust_ids = self.image_list.filter_by_direction()
         for illust_id in illust_ids:
             title_url = f"https://www.pixiv.net/ajax/illust/{illust_id}"
-            yield scrapy.Request(title_url, callback=self.parse_image)
+            yield scrapy.Request(title_url, callback=self.parse_image, meta={'illust_id': illust_id})
 
     def parse_image(self, response):
+        illust_id = response.meta['illust_id']
+
         json_data = response.json()
         title = json_data['body']['title']
 
         item = PixivItemBuilder() \
             .set_alt(sanitize_filename(title)) \
-            .set_image_urls(parse_url_util.get_img_urls(json_data)) \
+            .set_image_urls(
+            parse_url_util.get_img_urls(
+                json_data,
+                is_max=self.image_list.images[illust_id]["meta"]["is_max"])) \
             .set_image_path(self.image_list.image_path or json_data['body']['userName']) \
             .build()
 

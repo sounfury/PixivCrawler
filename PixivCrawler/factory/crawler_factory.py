@@ -7,6 +7,7 @@ from scrapy.utils.project import get_project_settings
 
 from PixivCrawler import PainterSpider, PixivRankSpider
 from PixivCrawler.spiders.search_spider import SearchSpider
+from PixivCrawler.spiders.work_spider import WorkSpider
 
 
 class CrawlerFactory:
@@ -27,6 +28,8 @@ class CrawlerFactory:
             self.spider_args = {'num_pages': num_pages, 'time_span': time_span, 'time_': time_}
         elif type == 'search':
             self.pixiv_spider = SearchSpider
+        elif type == 'work':
+            self.pixiv_spider = WorkSpider
         else:
             print("功能未开放")
             return None
@@ -39,6 +42,3 @@ class CrawlerFactory:
         process = CrawlerProcess(get_project_settings())
         process.crawl(self.pixiv_spider, **self.spider_args)  # 传递spider类和参数
         process.start()
-
-
-
